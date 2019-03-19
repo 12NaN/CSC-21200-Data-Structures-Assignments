@@ -1,0 +1,353 @@
+template <class ItemType>
+LinkedList<ItemType>::LinkedList(LinkedList<ItemType>* copy)
+{
+	node<ItemType>* tail_ptr = nullptr;
+	
+	if(!headptr)
+		return;
+		
+	insertHead(copy->value.top());
+	tail_ptr = headptr;
+	
+	copy = copy->next;
+	while(copy != nullptr)
+	{
+		tail_ptr->insertNode(copy.value);
+		tail_ptr = tail_ptr->next;
+		copy = copy->next;	
+	}
+}
+
+template <class ItemType>
+LinkedList<ItemType>& LinkedList<ItemType>::operator=(const LinkedList<ItemType>* copy)
+{
+	// Precondition: copy is a const Linkedlist<ItemType> pointer
+	// Postcondition: A copy of copy is assigned to the LinkedList<ItemType> variable
+	
+	node<ItemType>* node_ptr;
+	if(this != &copy)
+	{
+		node<ItemType>* temp_ptr = headptr;
+				
+		while(temp_ptr)
+		{
+			headptr = headptr->next;
+			delete temp_ptr;
+			temp_ptr = headptr;
+		}
+		
+		temp_ptr = copy.headptr;
+		while(copy != nullptr)
+		{
+			temp_ptr->insertNode(copy.value);
+			temp_ptr = temp_ptr->next;
+			copy = copy->next;
+		}
+	}
+	return *this;	
+}
+
+template <class ItemType>
+void LinkedList<ItemType>::clearList()
+{
+	// Precondition: The linkedlist is either empty or contains nodes
+	// Postcondition: The linkedlist is empty
+	
+	node<ItemType> *nodePtr;
+	node<ItemType> *nextPtr;
+	nodePtr = headptr;
+		
+	while(nodePtr != nullptr)
+	{
+		nextPtr = nodePtr->next;
+		delete nodePtr;
+		nodePtr = nextPtr;
+	}
+	headptr = nullptr;
+}
+template <class ItemType>
+void LinkedList<ItemType>::displayList() const
+{
+	// Precondition: The list contains nodes of data
+	// Postcondition: Prints the top of the stack on each node of the
+	// linked list
+	
+	node<ItemType> *nodePtr;
+	
+	nodePtr = headptr;
+	
+	while(nodePtr)
+	{
+		std::cout << nodePtr->value.top() << std::endl;
+		nodePtr = nodePtr->next;
+	}
+}
+	
+template <class ItemType>
+void LinkedList<ItemType>::insertNode(const ItemType& newValue)
+{
+	// Precondition: newValue is of type const ItemType&
+	// Postcondition: A node with newValue at the top of it's stack
+	// is inserted into the linked list
+	
+	node<ItemType>* newNode;
+	node<ItemType>* nodePtr;
+	node<ItemType>* previousNode = nullptr;
+	
+	newNode = new node<ItemType>(newValue);
+	
+	if(!headptr)
+	{
+		headptr = newNode;
+		newNode->next = nullptr;
+	}
+	else
+	{
+		nodePtr = headptr;
+		previousNode = nullptr;
+		
+		while(nodePtr != nullptr && nodePtr->value.top() < newValue)
+		{
+			previousNode = nodePtr;
+			nodePtr = nodePtr->next;
+		}
+		
+		if(previousNode == nullptr)
+		{
+			headptr = newNode;
+			newNode->next = nodePtr;
+		}
+		else
+		{
+			previousNode->next = newNode;
+			newNode->next = nodePtr;
+		}
+	}	
+}
+
+template <class ItemType>
+void LinkedList<ItemType>::insertAt(int nodePosition, const ItemType& newValue)
+{
+	// Precondition: nodePosition is an int and newValue is of type const ItemType&
+	// Postcondition: A new node is inserted at the position nodePosition on the linked list
+	// with the value newValue on the top of its stack
+	
+	node<ItemType>* newNode;
+	node<ItemType>* nodePtr;
+	node<ItemType>* previousNode = nullptr;
+	
+	newNode = new node<ItemType>(newValue);
+	
+	if(nodePosition < 0 || nodePosition > size() + 1)
+		return;
+	else{
+		if(nodePosition == 0)
+			insertHead(newValue);
+			
+		nodePtr = headptr;
+		previousNode = nullptr;
+		
+		while(nodePosition--)
+		{
+			previousNode = nodePtr;
+			nodePtr = nodePtr->next;
+		}
+		
+		previousNode->next = newNode;
+		newNode->next = nodePtr;
+	}	
+}
+
+template <class ItemType>
+void LinkedList<ItemType>::insertHead(const ItemType& newValue)
+{
+	// Precondition: newValue is of type const ItemType&
+	// Postcondition: A new node is inserted at the head of the linked list
+	// with newValue at the top of it's stack
+
+	node<ItemType>* newNode;
+	node<ItemType>* nodePtr;
+	node<ItemType>* previousNode = nullptr;
+	
+	newNode = new node<ItemType>(newValue);
+	
+	if(!headptr)
+	{
+		headptr = newNode;
+		newNode->next = nullptr;
+	}
+	else
+	{
+		nodePtr = headptr->next;
+		headptr = newNode;
+		headptr->next = nodePtr;
+	}
+	
+}
+
+template <class ItemType>
+void LinkedList<ItemType>::removeHead()
+{
+	// Precondition: The linked list is either empty or contains at least a node
+	// at the head
+	// Postcondition: The linked list's head node is removed and the node following
+	// it becomes the new head node
+	
+	node<ItemType> *nodePtr;
+	
+	if(!headptr)
+		return;
+	else
+	{
+		nodePtr = headptr->next;
+		delete headptr;
+		headptr = nodePtr;
+	}
+}
+
+template <class ItemType>
+void LinkedList<ItemType>::removeFrom(int nodePosition){
+	// Precondition: nodePosition is an int
+	// Postcondition: The node at nodePosition is removed from the linked list
+
+	node<ItemType> *nodePtr;
+	node<ItemType> *previousNode;
+	
+	if(!headptr)
+		return;
+	
+	nodePtr = headptr;
+	if(nodePosition == 0)
+	{
+		nodePtr = headptr->next;
+		delete headptr;
+		headptr = nodePtr;
+	}
+	else{
+		while(nodePosition != 0)
+		{
+			previousNode = nodePtr;
+			nodePtr = nodePtr->next;
+			nodePosition--;
+		}
+	
+		if(nodePtr)
+		{
+			previousNode->next = nodePtr->next;
+			delete nodePtr;
+		}
+	}
+}
+
+template <class ItemType>
+int LinkedList<ItemType>::size(){
+	// Precondition: The linkedlist is either empty or contains nodes
+	// Postcondition: The size of the linkedlist is returned
+	
+	node<ItemType> *nodePtr;
+	int size = 0;
+	nodePtr = headptr;
+	
+	while(nodePtr)
+	{
+		nodePtr = nodePtr->next;
+		size++;
+	}
+	return size;	
+}
+
+template <class ItemType>
+void LinkedList<ItemType>::update(int valuePosition, const ItemType& newValue){
+	// Precondition: valuePosition is an integer and newValue are of type const ItemType& 
+	// Postcondition: The node with searchValue on the top of it's stack has newValue pushed 
+	// to its stack
+	
+	node<ItemType> *nodePtr;
+	nodePtr = headptr;
+	
+	if(valuePosition >= size() || valuePosition < 0)
+		return;
+	
+	while(valuePosition--)
+	{
+		nodePtr = nodePtr->next;
+	}
+	nodePtr->value.push(newValue);
+	
+	return;
+}
+
+template <class ItemType>
+void LinkedList<ItemType>::redo(int valuePosition, const int undo_to){
+	// Precondition: valuePosition is an integer and undo_to is a const int
+	// Postcondition: The node with the stack that has value searchValue on the top
+	// is popped a certain amount of times depending on the value of undo_to
+
+	node<ItemType> *nodePtr;
+	nodePtr = headptr;
+	
+	if(valuePosition >= size() || valuePosition < 0)
+		return;
+		
+	while(valuePosition--)
+		nodePtr = nodePtr->next;
+		
+	for(int i = 1; i <= undo_to; i++)
+		nodePtr->value.pop();
+			
+	return;	
+}
+
+template <class ItemType>
+void LinkedList<ItemType>::deleteNode(const ItemType& searchValue)
+{
+	// Precondition: searchValue is of type const ItemType&
+	// Postcondition: The node with the value searchValue is deleted from the 
+	// linked list
+	
+	node<ItemType> *nodePtr;
+	node<ItemType> *previousNode;
+	
+	if(!headptr)
+		return;
+	
+	if(headptr->value.top() == searchValue)
+	{
+		nodePtr = headptr->next;
+		delete headptr;
+		headptr = nodePtr;
+	}
+	else
+	{
+		nodePtr = headptr;
+		
+		while(nodePtr != nullptr && nodePtr->value.top() != searchValue)
+		{
+			previousNode = nodePtr;
+			nodePtr = nodePtr->next;
+		}
+		
+		if(nodePtr)
+		{
+			previousNode->next = nodePtr->next;
+			delete nodePtr;
+		}
+	}
+}
+
+template <class ItemType>
+LinkedList<ItemType>::~LinkedList()
+{
+	node<ItemType>* nodePtr;
+	node<ItemType>* nextNode;
+	
+	nodePtr = headptr;
+	
+	while(nodePtr != nullptr)
+	{
+		nextNode = nodePtr->next;
+		delete nodePtr;
+		
+		nodePtr = nextNode;
+	}
+}

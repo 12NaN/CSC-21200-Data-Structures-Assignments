@@ -1,0 +1,176 @@
+template <class Type>
+table<Type>::table()
+{
+	used = 0;
+	for(int i = 0; i < TABLE_SIZE; i++){
+		data[i] = nullptr;
+	}
+}
+
+template <class Type>
+table<Type>::~table()
+{
+	node<Type>* temp;
+	node<Type>* temp_next;
+	
+	for(int i = 0; i < TABLE_SIZE; i++)
+	{
+		temp = data[i];
+		while(temp != nullptr){
+			temp_next = temp->get_next();
+			delete temp;
+			temp = temp_next;		
+		}
+		data[i] = nullptr;
+	}
+}
+
+template <class Type>
+int table<Type>::hashFunct(int key) const{
+	// Precondition: key is of type int
+	// Postcondition: The remainder of the key divided by the TABLE_SIZE is returned
+	// as the hash code
+
+	return key % TABLE_SIZE;
+}
+
+template <class Type>
+void table<Type>::insert(const int& key_val, const Type& entry)
+{
+	// Precondition: key_val is of type const int& and entry is of type const Type&
+	// Postcondition: A new node is inserted into the linked list with a specific key
+	
+	int hash_val = hashFunct(key_val);
+	node<Type>* previous = nullptr;
+	node<Type>* ptr = data[hash_val];
+	
+	while(ptr != nullptr)
+	{
+		previous = ptr;
+		ptr = ptr->get_next();
+	}
+	
+	if(ptr == nullptr){
+		ptr = new node<Type>;
+		ptr->set_key(key_val);
+		ptr->set_data(entry);
+		
+		if(previous == nullptr){
+			data[hash_val] = ptr;		
+		}
+		else
+			previous->set_next(ptr);
+	}
+	else{
+		ptr->set_data(entry);
+	}
+}
+
+template <class Type>
+void table<Type>::find(int key, bool& found, Type& result) const
+{
+	// Precondition: key is of type int, found is of type bool& and result is
+	// of type Type&
+	// Postcondition: If value is found set result to the value
+	
+	node<Type>* nodePtr;
+	
+	findPtr(key, found, nodePtr);
+	
+	if(found)
+		result = nodePtr->value;
+}
+
+template <class Type>
+void table<Type>::findPtr(int key, bool& found, node<Type>*& nodePtr) const
+{
+	// Precondition: key is of type int, found is of type bool& and nodePtr
+	// is of type node<Type>*&
+	// Postcondition: if ptr is found nodePtr equals ptr, else nodePtr equals nullptr
+	
+	int i;
+	node<Type>* ptr;
+	
+	i = hashFunct(key);
+	ptr = data[i];
+	found = false;
+	
+	while(!found && ptr != nullptr)
+	{
+		if(key == ptr->get_key())
+		{
+			found = true;
+			nodePtr = ptr;
+		}
+		ptr = ptr->get_next();
+	}
+	if(!found)
+		nodePtr = nullptr;
+}
+
+template<class Type>
+void table<Type>::remove(int key){
+	// Precondition: key is of type int
+	// Postcondition: The node that contains the specific key is removed
+	// from the list
+
+	int hash_val = hashFunct(key);
+	
+	node<Type>* entry = data[hash_val];
+	node<Type>* previous = nullptr;
+
+	if(entry == nullptr)
+	{
+		return;
+	}
+
+	while(entry->get_key() != key)
+	{
+		previous = entry;
+		entry = entry->get_next();
+	}
+	
+	if(previous != nullptr)
+		previous->set_next(entry->get_next());
+	else
+		data[hash_val] = entry->get_next();
+		
+	delete entry;
+}
+
+template <class Type>
+void table<Type>::find_index(int key, bool& found, int& i) const
+{
+	// Precondition: key is of type int, found is of type bool& and i is of type
+	// int&
+	// Postcondition: If the index is found, found equals true, else found is false
+
+	int count = 0;
+	
+	i = hashFunct(key);
+	
+	while(count < TABLE_SIZE && data[i]->get_key() != -1 && data[i]->get_key() != key)
+	{
+		count++;
+		i = (i+1) % TABLE_SIZE;
+	}
+	
+	found = data[i]->get_key() == key;
+}
+
+template<class Type>
+void table<Type>::display(){
+	// Precondition: The hash table is empty or contains values
+	// Postcondition: Prints the values in the hash table
+	
+	node<Type>* ptr;
+	for(int i = 0; i < TABLE_SIZE; i++)
+	{
+		std::cout << "\n[" << i << "]: ";
+		for(ptr = data[i]; ptr != nullptr; ptr = ptr->get_next())
+		{
+				std::cout << "---->";
+				std::cout << ptr->get_data();
+		}
+	}
+}

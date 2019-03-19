@@ -1,0 +1,134 @@
+template <class Type>
+table_two<Type>::table_two()
+{
+	used = 0;
+	for(int i = 0; i < TABLE_SIZE; i++){
+		data[i] = nullptr;
+	}
+}
+
+template <class Type>
+table_two<Type>::~table_two()
+{
+	bin_tree_node<Type>* temp;
+	int i;
+	
+	for(i = 0; i < TABLE_SIZE; i++)
+	{
+		temp = data[i];
+		if(temp != nullptr)
+		{
+			tree_clear(temp);
+		}
+	}
+	data[i] = nullptr;
+}
+
+template <class Type>
+int table_two<Type>::hashFunct(int key) const{
+	// Precondition: key is of type int
+	// Postcondition: The remainder of the key divided by the TABLE_SIZE is returned
+	// as the hash code
+	
+	return key % TABLE_SIZE;
+}
+
+template <class Type>
+void table_two<Type>::insert(const int& key_val, const Type& entry)
+{
+	// Precondition: key_val is of type const int& and entry is of type const Type&
+	// Postcondition: A new node is inserted into the binary tree with a specific key
+	
+	int hash_val = hashFunct(key_val);
+	bin_tree_node<Type>* ptr = data[hash_val];
+	data[hash_val] = bst_insert(ptr, entry, key_val);
+}
+
+template <class Type>
+void table_two<Type>::find(int key, bool& found, Type& result) const
+{
+	// Precondition: key is of type int, found is of type bool& and result is
+	// of type Type&
+	// Postcondition: If value is found set result to the value
+	
+	bin_tree_node<Type>* nodePtr;
+	
+	findPtr(key, found, nodePtr);
+	
+	if(found)
+		result = nodePtr->get_data();
+}
+
+template <class Type>
+void table_two<Type>::findPtr(int key, bool& found, bin_tree_node<Type>*& nodePtr) const
+{
+	// Precondition: key is of type int, found is of type bool& and nodePtr
+	// is of type bin_tree_node<Type>*&
+	// Postcondition: if ptr is found nodePtr equals ptr, else nodePtr equals nullptr
+	
+	int i;
+	bin_tree_node<Type>* ptr, *ptrLeft, *ptrRight;
+	
+	i = hashFunct(key);
+	ptr = data[i];
+	found = false;
+	
+	if(key == ptr->get_key())
+	{
+		found = true;
+		nodePtr = ptr;
+	}		
+
+	if(!found)
+		nodePtr = nullptr;
+}
+
+template<class Type>
+void table_two<Type>::remove(int key){
+	// Precondition: key is of type int
+	// Postcondition: If the entry != nullptr, bst_remove is called
+
+	int hash_val = hashFunct(key);
+	
+	bin_tree_node<Type>* entry = data[hash_val];
+	
+	if(entry == nullptr)
+	{
+		std::cout << "No such element " << std::endl;
+		return;
+	}
+
+	bst_remove(entry, key);
+}
+
+template <class Type>
+void table_two<Type>::find_index(int key, bool& found, int& i) const
+{
+	// Precondition: key is of type int, found is of type bool& and i is of type
+	// int&
+	// Postcondition: If the index is found, found equals true, else found is false
+	
+	int count = 0;
+	
+	i = hashFunct(key);
+	
+	while(count < TABLE_SIZE && data[i]->get_key() != -1 && data[i]->get_key() != key)
+	{
+		count++;
+		i = (i+1) % TABLE_SIZE;
+	}
+	
+	found = data[i]->get_key() == key;
+}
+
+template<class Type>
+void table_two<Type>::display(){
+	// Precondition: The hash table is empty or contains values
+	// Postcondition: Prints the values in the hash table using inorder traversal
+	
+	for(int i = 0; i < TABLE_SIZE; i++)
+	{
+		std::cout << "\n[" << i << "]: ";
+		inorder(data[i]);
+	}
+}

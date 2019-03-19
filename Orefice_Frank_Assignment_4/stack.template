@@ -1,0 +1,28 @@
+template <class ItemType>
+void stack<ItemType>::push(const ItemType& entry)
+{
+	// Precondition: entry is of type const ItemType&
+	// Postcondition: entry is inserted into the stack and used is incremented
+	
+	data[used] = entry;
+	used++;
+}
+
+template <class ItemType>
+void stack<ItemType>::pop()
+{
+	// Precondition: used > 0
+	// Postcondition: used is decremented and the data is removed from the stack
+	// at that specific index
+	
+	used--;
+}
+
+template <class ItemType>
+ItemType stack<ItemType>::top() const
+{
+	// Precondition: used > 0
+	// Postcondition: The value at data[used-1] is returned
+	
+	return data[used-1];
+}
